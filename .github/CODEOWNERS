@@ -1,0 +1,18 @@
+# CODEOWNERS — applied by ci-quality-templates-python
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Available FOTC-org teams: ai, ent:devops, fotc-ai-team, fotc-marketing, gcp-arit
+# Each repo can override this file or extend it with project-specific paths.
+
+# ── Default: all changes require DevOps team review ───────────────────
+*                                   @FOTC-org/ent:devops
+
+# ── CI/CD and security configs — require DevOps review ────────────────
+.github/                            @FOTC-org/ent:devops
+.pre-commit-config.yaml             @FOTC-org/ent:devops
+trivy.yaml                          @FOTC-org/ent:devops
+.trivyignore                        @FOTC-org/ent:devops
+Dockerfile                          @FOTC-org/ent:devops
+docker-compose*.yml                 @FOTC-org/ent:devops
+cloudbuild.yaml                     @FOTC-org/ent:devops
+renovate.json                       @FOTC-org/ent:devops

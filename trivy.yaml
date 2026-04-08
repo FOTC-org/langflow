@@ -1,0 +1,30 @@
+# Trivy configuration for Python projects
+# Copy as trivy.yaml to your repo root
+# Use inline trivy:ignore annotations in code instead of .trivyignore
+
+severity:
+  - CRITICAL
+  - HIGH
+  - MEDIUM
+
+scan:
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+
+secret:
+  skip-files:
+    - "*.pyc"
+    - "*.log"
+    - "*.env.example"
+
+skip-dirs:
+  - ".git"
+  - "node_modules"
+  - "__pycache__"
+  - ".venv"
+  - "venv"
+  - ".mypy_cache"
+  - ".ruff_cache"
+  - ".pytest_cache"

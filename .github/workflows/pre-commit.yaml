@@ -1,0 +1,25 @@
+# Minimal caller workflow for pre-commit
+# Copy to .github/workflows/pre-commit.yaml in your repo
+#
+# How it works:
+#   - Calls the reusable workflow from FOTC-org/github-reusable-workflows
+#   - The reusable workflow auto-detects your project stack
+#   - If your repo has NO .pre-commit-config.yaml or trivy.yaml,
+#     the workflow fetches them from FOTC-org/ci-quality-templates-python
+#   - If your repo HAS local configs, they take priority (override)
+#
+# Optional: pass stack explicitly if auto-detection isn't correct:
+#   with:
+#     stack: python  # python | geminichat | general
+name: pre-commit
+
+on:
+  pull_request:
+
+jobs:
+  pre-commit:
+    uses: FOTC-org/github-reusable-workflows/.github/workflows/pre-commit.yaml@main
+    secrets: inherit
+    # Optional: override auto-detected stack
+    # with:
+    #   stack: python

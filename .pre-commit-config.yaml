@@ -1,42 +1,75 @@
+# Python pre-commit config
+# Includes general hooks + Python-specific linting/formatting
+# Copy as .pre-commit-config.yaml to your repo root
+---
+default_install_hook_types: [pre-commit]
 repos:
+  # ── Basic file hygiene ──────────────────────────────────────────────
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
-      - id: check-case-conflict
-      - id: end-of-file-fixer
-        # python, js and ts only
-        files: \.(py|js|ts)$
-      - id: mixed-line-ending
-        files: \.(py|js|ts)$
-        args:
-          - --fix=lf
       - id: trailing-whitespace
-  - repo: local
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: mixed-line-ending
+      - id: destroyed-symlinks
+      - id: check-shebang-scripts-are-executable
+      - id: check-executables-have-shebangs
+      - id: no-commit-to-branch
+        args: [--branch, develop, --branch, main, --branch, master]
+
+  # ── Shell scripts ───────────────────────────────────────────────────
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.11.0
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/pecigonzalo/pre-commit-shfmt
+    rev: v2.2.0
+    hooks:
+      - id: shell-fmt-docker
+        args:
+          - -i
+          - "4"
+
+  # ── Secret detection ────────────────────────────────────────────────
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
+  # ── Python formatting & linting ─────────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.4
     hooks:
       - id: ruff
-        name: ruff check
-        entry: uv run ruff check
-        language: system
-        types_or: [python, pyi]
-        args: [--fix]
+        args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
-        name: ruff format
-        entry: uv run ruff format
-        language: system
-        types_or: [python, pyi]
-        args: [--config, pyproject.toml]
+
+  # ── Dockerfile linting + Security scanning ──────────────────────────
   - repo: local
     hooks:
-      - id: local-biome-check
-        name: biome check
-        entry: bash -c 'cd src/frontend && npx @biomejs/biome check --write --files-ignore-unknown=true --no-errors-on-unmatched --diagnostic-level=error'
-        language: system
-        types: [text]
-        files: "\\.(jsx?|tsx?|c(js|ts)|m(js|ts)|d\\.(ts|cts|mts)|jsonc?)$"
-      - id: validate-starter-projects
-        name: Validate Starter Project Templates
-        entry: uv run python src/backend/tests/unit/template/test_starter_projects.py
-        language: system
-        files: ^src/backend/base/langflow/initial_setup/starter_projects/.*\.json$
+      - id: hadolint-docker
+        name: Lint Dockerfiles
+        description: Runs hadolint to lint Dockerfiles
+        language: docker_image
+        types: ["dockerfile"]
+        entry: ghcr.io/hadolint/hadolint hadolint
+
+      # Trivy filesystem scan (vulnerabilities + secrets + misconfig)
+      - id: trivyfs-docker
+        name: Trivy filesystem scan
+        entry: aquasec/trivy:latest fs --cache-dir /src/.pre-commit-trivy-cache --exit-code 1 --severity=CRITICAL,HIGH --timeout 10m --skip-dirs=.git,node_modules,.next,__pycache__,.venv,venv --scanners=vuln,secret,misconfig .
+        language: docker_image
         pass_filenames: false
-        args: [--security-check]
+
+      # SAST with Semgrep
+      - id: semgrep-docker
+        name: Semgrep SAST scan
+        language: docker_image
+        entry: -e SEMGREP_LOG_FILE=/tmp/out.log -e SEMGREP_VERSION_CACHE_PATH=/tmp/cache returntocorp/semgrep:latest semgrep scan --config=auto --error
+        pass_filenames: false

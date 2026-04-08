@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": ["dependencies", "renovate"],
+  "timezone": "Europe/Warsaw",
+  "schedule": ["after 7am and before 6pm every weekday"],
+  "packageRules": [
+    {
+      "description": "Python pip - automerge minor and patch",
+      "matchManagers": ["pip_requirements", "pip_setup", "pipenv", "poetry", "pep621"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "GitHub Actions - automerge minor and patch",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "groupName": "github-actions minor/patch",
+      "groupSlug": "github-actions"
+    },
+    {
+      "description": "Docker - group updates",
+      "matchManagers": ["dockerfile"],
+      "groupName": "docker updates",
+      "groupSlug": "docker"
+    },
+    {
+      "description": "Major updates - add label, no automerge",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major", "breaking-change"],
+      "automerge": false
+    },
+    {
+      "description": "Security updates - high priority",
+      "matchCategories": ["security"],
+      "addLabels": ["security"],
+      "prPriority": 20,
+      "automerge": true
+    }
+  ]
+}
