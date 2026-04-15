@@ -1,0 +1,62 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "platformAutomerge": true,
+  "packageRules": [
+    {
+      "description": "Python pip - automerge minor and patch",
+      "matchManagers": [
+        "pip_requirements",
+        "pip_setup",
+        "pipenv",
+        "poetry",
+        "pep621"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Docker - group updates",
+      "matchManagers": [
+        "dockerfile",
+        "docker-compose"
+      ],
+      "groupName": "docker updates",
+      "groupSlug": "docker"
+    },
+    {
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "groupName": "all non-major dependencies",
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Security updates - high priority",
+      "matchCategories": [
+        "security"
+      ],
+      "addLabels": [
+        "security"
+      ],
+      "prPriority": 20,
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": "all major dependencies",
+      "automerge": false
+    }
+  ]
+}
